@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<link type="text/css" href="reset.css" rel="stylesheet" />
+<head>
+
+<title>Exam</title>
+</head>
+
+<body>
+<div style="float:right;">
+<select onchange="changeDemo(this.value);">
+  <option value="demo1">測試一</option>
+  <option value="demo2">測試二</option>
+  <option value="demo3">測試三</option>
+</select>
+<button onclick="showImg();">取圖</button>
+<br />
+<img id="demoImg" style="width:300px;" />
+</div>
+
+<!--
+畫板插入: <iframe src="exam.html#src=圖片位置&v=是否直式文字(true|false)"  
+
+顯示或隱藏畫板: display = "block|none" 
+
+取圖:呼叫 iframe 中的 toDataURL function.
+
+(toDataURL() 會輸出這樣格式的圖片字串資訊 data:image/png;base64,iVBORw0KGgoAAAANS....
+要上傳圖片，可以先把 data:image/png;base64, 刪掉，變成 iVBORw0KGgoAAAANS....
+用POST request 把字串上傳後，在 php 中 base64_decode 還原成圖片檔案)
+-->
+<script type="text/javascript">
+var curr = "demo1";
+function changeDemo(id){
+	document.getElementById(curr).style.display = "none";
+	document.getElementById(id).style.display = "block";
+	curr = id;
+}
+function showImg(){
+	document.getElementById("demoImg").src = document[curr].toDataURL();
+}
+</script>
+<iframe style="height:100%;width:700px;" id="demo1" name="demo1" src="exam.html#src=demo.jpg&v=true"></iframe>
+<iframe style="height:100%;width:700px;display:none;" id="demo2" name="demo2" src="exam.html#src=demo2.jpg&v=true"></iframe>
+<iframe style="height:100%;width:700px;display:none;" id="demo3" name="demo3" src="exam.html#src=demo3.jpg&v=true"></iframe>
+
+
+</body>
+
+</html>

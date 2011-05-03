@@ -1,9 +1,10 @@
 window.addEvent('domready',function(){
+	var data = location.hash.substr(1).parseQueryString();
 	
 	var canvas = new drawjs.Canvas('canvas');
 	
 	var background = new drawjs.Layer({system:true});
-	var image = new drawjs.shape.Image({'src':location.hash.substr(1)});
+	var image = new drawjs.shape.Image({'src':data.src});
 	image.addEvent('load',function(){
 		var b = this.getBound();
 		var w = Math.round(b.width*0.7);
@@ -119,3 +120,7 @@ window.addEvent('domready',function(){
 	});
 	
 });
+
+function toDataURL(){
+	return $('canvas').toDataURL();
+}
