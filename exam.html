@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=IE8">
+<link type="text/css" href="reset.css" rel="stylesheet" /> 
+<link type="text/css" href="main.css" rel="stylesheet" /> 
+<title>Sketch 5</title>
+<script type="text/javascript" src="mootools-core-1.3.js"></script>
+<script type="text/javascript" src="mootools-more.js"></script>
+<script type="text/javascript" src="draw.js"></script>
+<script type="text/javascript" src="main.js"></script>
+</head>
+<body>
+
+
+<div class="cover" id="loading">
+	<div class="msg on">
+		<h3>載入中...</h3>
+	</div>
+	<div class="mask"></div>
+</div>
+
+<div class="cover" id="textCover" style="display:none;" >
+	<div class="box">
+		<form>
+			<h3>輸入文字<h3>
+			<p><textarea id="style-text" class="field" style="width:400px;height:150px;"></textarea></p>
+			<p><a class="button" id="textOk" a="#" >確定</a> 
+				<a class="button" id="textCancel" a="#" >取消</a>
+			</p>
+		</form>
+	</div>
+	<div class="mask"></div>
+</div>
+
+<div id="toolbar">
+<span class="button" id="button-undo" title="Undo (Ctrl+z)"><span class="icon-undo"></span></span>
+<span class="button" id="button-redo" title="Redo (Ctrl+y)"><span class="icon-redo"></span></span>
+<div class="separater"></div>
+<span class="button" id="button-selector"><span class="icon-select"></span></span>
+<span class="button" id="button-pen"><span class="icon-pencil"></span></span>
+<span class="button" id="button-hVUnderline"><span class="icon-line"></span></span>
+<span class="button" id="button-hVDottedLine" ><span class="icon-dot"></span></span>
+<span class="button" id="button-swap"><span class="icon-swap"></span></span>
+<span class="button" id="button-ellipseText"><span class="icon-circle"></span></span>
+<span class="button" id="button-vInsertText"><span class="icon-vinsert"></span></span>
+<span class="button" id="button-hInsertText"><span class="icon-hinsert"></span></span>
+<span class="button" id="button-text"><span class="icon-text"></span></span>
+<div class="separater"></div>
+<span>
+	<span class="text">粗幼:</span>
+	
+	<select id="style-lineWidth">
+	<script type="text/javascript">
+		for(i=1;i<=10;i++){
+			document.write('<option value="'+i+'" '+(i==2?'selected="selected"':'')+'>'+i+'</option>');
+		}
+	</script>
+	</select>
+	
+	<span>
+	<span class="text">顏色:</span>
+	
+	<select id="style-stroke" style="width:50px;background:#000;">
+	<script type="text/javascript">
+		Array.each(['#000','#f00','#f80','#ff0','#009d15','#00f','#f0f'],function(color){
+			document.write('<option style="background:'+color+'" value="'+color+'" '+'></option>');
+		});
+	</script>
+	</select>
+</span>
+</span>
+
+	
+
+
+</div>
+
+<div id="canvaswrapper">
+<canvas id="canvas" width="1" height="1" ></canvas>
+</div>
+
+</body>
+</html>
