@@ -24,20 +24,9 @@ window.addEvent('domready',function(){
 	
 	var clipboard = new drawjs.Clipboard(selection,canvas,history);
 	
-	var toolset = new drawjs.Toolset(canvas,selection,history,styling,
-	data.v == "true" ? [
+	var toolset = new drawjs.Toolset(canvas,selection,history,styling,[
 		drawjs.tool.Selector, 
-		drawjs.tool.VSwap,
-		drawjs.tool.HVDottedLine,
-		drawjs.tool.HVUnderline,
-		drawjs.tool.Pen,
-		drawjs.tool.EllipseText,
-		drawjs.tool.VText,
-		drawjs.tool.VInsertText,
-		drawjs.tool.HInsertText
-	]:[
-		drawjs.tool.Selector, 
-		drawjs.tool.HSwap,
+		data.v == "true" ? drawjs.tool.VSwap : drawjs.tool.HSwap,
 		drawjs.tool.HVDottedLine,
 		drawjs.tool.HVUnderline,
 		drawjs.tool.Pen,
