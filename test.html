@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=IE8">
+<title>DrawJS Feature Test</title>
+<script type="text/javascript" src="mootools-core-1.3.js"></script>
+<script type="text/javascript" src="mootools-more.js"></script>
+<script type="text/javascript" src="draw.js"></script>
+<script type="text/javascript" >
+window.addEvent('domready',function(){
+	var width = 700, height = 500;
+
+	var canvas = new drawjs.Canvas('canvas');
+	canvas.setSize(width,height);
+
+	var background = new drawjs.Layer({system:true});
+	background.add(new drawjs.shape.Rect({
+			'fill':'#fff','width':width,'height':height,
+	}));
+
+	canvas.push(background);
+	canvas.add(new drawjs.Layer({name:'Layer 1'}));
+
+	window.myhistory = new drawjs.History();
+	var selection = new drawjs.Selection();
+	
+	var styling = new drawjs.Styling(selection,myhistory);
+	
+	window.clipboard = new drawjs.Clipboard(selection,canvas,myhistory);
+	
+	window.toolset = new drawjs.Toolset(canvas,selection,myhistory,styling,[
+		drawjs.tool.Selector, 
+		drawjs.tool.Pen,
+		drawjs.tool.Curves,
+		drawjs.tool.Rect,
+		drawjs.tool.Ellipse,
+		drawjs.tool.Text,
+	]);
+	toolset.setType('pen');
+
+	//keyboard shortcuts
+	var keyboard = new Keyboard({
+	    defaultEventType: 'keydown',
+	    events:{
+	    	'ctrl+z':function(){ myhistory.undo(); },
+	    	'ctrl+y':function(){ myhistory.redo(); },
+	    	'ctrl+x':function(){ clipboard.cut(); },
+	    	'ctrl+c':function(){ clipboard.copy(); },
+	    	'ctrl+v':function(){ clipboard.paste(); },
+	    	'delete':function(){ clipboard.hide(); }
+	    }
+	});
+
+	Array.each(['lineWidth','stroke','fill'],function(type){
+		$('style-'+type).addEvent('change',function(){
+			styling.setStyle(type,this.value);
+		});
+	});
+	styling.addEvent('change',function(options){
+		Object.each(options,function(value,key){
+			if($('style-'+key))
+				$('style-'+key).set('value',value);
+		});
+	});
+});
+</script>
+</head>
+<body>
+<h1>DrawJS Feature Test</h1>
+
+
+<canvas style="border:#999 1px solid;" id="canvas" width="1" height="1" ></canvas>
+<br />
+
+<button type="button" onclick="toolset.setType('selector');" >Select</button> 
+<button type="button" onclick="toolset.setType('pen');" >Pencil</button> 
+<button type="button" onclick="toolset.setType('curves');" >Bézier Curves</button>
+<button type="button" onclick="toolset.setType('rect');" >Rectangle</button> 
+<button type="button" onclick="toolset.setType('ellipse');" >Ellipse</button> 
+<br />
+Line Width: 
+<select id="style-lineWidth">
+<script type="text/javascript">
+	for(i=1;i<=10;i++){
+		document.write('<option value="'+i+'" '+(i==2?'selected="selected"':'')+'>'+i+'</option>');
+	}
+</script>
+</select> 
+
+Stroke:
+<input type="text" id="style-stroke" value="#000" />
+ 
+Fill:
+<input type="text" id="style-fill" value="#fff" />
+<br />
+
+<button type="button" onclick="myhistory.undo();" >Undo</button> 
+<button type="button" onclick="myhistory.redo();" >Redo</button> 
+<button type="button" onclick="clipboard.cut();" >Cut</button> 
+<button type="button" onclick="clipboard.copy();" >Copy</button> 
+<button type="button" onclick="clipboard.paste();" >Paste</button> 
+<button type="button" onclick="clipboard.hide();" >Delete</button> 
+
+</body>
+</html>
