@@ -105,7 +105,7 @@ drawjs.Transform = new Class({
 		var maxX=-16667;var maxY=-16667;
 		
 		this.shapes = Array.from(shapes).map(function(shape){
-			var s = shape.getBound();
+			var s = shape.getBBox();
 			minX = Math.min(s.x,minX);
 			minY = Math.min(s.y,minY);
 			maxX = Math.max(s.x+s.width,maxX);
@@ -211,7 +211,7 @@ drawjs.Transform = new Class({
 		this.isFlipX = false;
 		this.isFlipY = false;
 	}.protect(),
-	getBound:function(){
+	getBBox:function(){
 		return {
 			x:Math.min(this.x,this.x+this.width),
 			y:Math.min(this.y,this.y+this.height),
@@ -250,7 +250,7 @@ drawjs.Clipboard = new Class({
 			});
 			/*
 			var transform = new drawjs.Transform(clone);
-			var t = transform.getBound();
+			var t = transform.getBBox();
 			var c = this.canvas.getSize();
 			transform.setPosition(
 				(c.width-t.width)/2,
@@ -478,11 +478,11 @@ drawjs.tool.Selector = new Class({
 		return 'selector';
 	},
 	init:function(){
-		this.controlLayer = new drawjs.Layer({system:true});
+		this.cLayer = new drawjs.Layer({system:true});
 		this.frame = new drawjs.shape.Rect({
 			'stroke':'#000','lineWidth':1
 		});
-		this.controlLayer.add(this.frame);
+		this.cLayer.add(this.frame);
 		this.dots = [];
 		for(var i=0;i<9;i++){
 			var dot = new drawjs.shape.Rect({
@@ -491,7 +491,7 @@ drawjs.tool.Selector = new Class({
 				'visible':false
 			});
 			this.dots.push(dot);
-			if(i!=4) this.controlLayer.add(dot);
+			if(i!=4) this.cLayer.add(dot);
 		}
 	},
 	select:function(){
@@ -504,7 +504,7 @@ drawjs.tool.Selector = new Class({
 		this.refresh();
 	},
 	enter:function(){
-		this.canvas.push(this.controlLayer);
+		this.canvas.push(this.cLayer);
 		this.refresh();
 	},
 	leave:function(){
@@ -522,7 +522,7 @@ drawjs.tool.Selector = new Class({
 		this.prevX = e.x;
 		this.prevY = e.y;
 		
-		this.focus = this.controlLayer.select(e.x,e.y) || this.canvas.select(e.x,e.y);
+		this.focus = this.cLayer.select(e.x,e.y) || this.canvas.select(e.x,e.y);
 		
 		switch(this.focus){
 			case this.frame:case this.dots[0]:case this.dots[1]:
@@ -564,7 +564,7 @@ drawjs.tool.Selector = new Class({
 			this.prevY = e.y;
 		}else{
 			var cursor;
-			switch (this.controlLayer.select(e.x,e.y)){
+			switch (this.cLayer.select(e.x,e.y)){
 				case this.dots[0]: cursor = 'nw-resize'; break;
 				case this.dots[1]: cursor = 'n-resize'; break;
 				case this.dots[2]: cursor = 'ne-resize'; break;
@@ -585,7 +585,7 @@ drawjs.tool.Selector = new Class({
 			this.pressed = false;
 			if(!this.focus){
 				//nothing selected i.e. frame dragged
-				this.selection.select(this.canvas.bound(this.transform.getBound()));
+				this.selection.select(this.canvas.bound(this.transform.getBBox()));
 			}else if(this.dragged){
 				//save changes & reset bound
 				this.history.save(this.selection.getSelected().map(function(shape){
@@ -600,7 +600,7 @@ drawjs.tool.Selector = new Class({
 		this.setFrame();
 	},
 	setFrame:function(){
-		var b = this.transform.getBound();
+		var b = this.transform.getBBox();
 		var showDots = this.selection.getSelected().length>0;
 		this.frame.setVisible(true);
 		this.frame.setPosition(b.x,b.y);
@@ -728,7 +728,7 @@ drawjs.tool.PathTemplate = new Class({
 	Extends:drawjs.tool.Template,
 	init:function(){
 		var self = this;
-		this.controlLayer = new drawjs.Layer({system:true});
+		this.cLayer = new drawjs.Layer({system:true});
 		var pointStyle = {
 			'fill':'#fff','stroke':'#000',
 			'lineWidth':1,'width':8,'height':8,
@@ -742,24 +742,20 @@ drawjs.tool.PathTemplate = new Class({
 		var cLineStyle = {
 			'stroke':'#000','lineWidth':1
 		};
-		this.controlLine1 = new drawjs.shape.Path(cLineStyle);
-		this.controlLine1.moveTo(-167,-167);
-		this.controlLine1.lineTo(-67,-67);
-		this.controlLine2 = new drawjs.shape.Path(cLineStyle);
-		this.controlLine2.moveTo(-167,-167);
-		this.controlLine2.lineTo(-67,-67);
-		this.controlPoint1 = new drawjs.shape.Ellipse(cPointStyle);
-		this.controlPoint2 = new drawjs.shape.Ellipse(cPointStyle);
+		this.cLine = new drawjs.shape.Path(cLineStyle);
+		this.cLine.moveTo(-167,-167);
+		this.cLine.lineTo(-67,-67);
+		this.cPoint1 = new drawjs.shape.Ellipse(cPointStyle);
+		this.cPoint2 = new drawjs.shape.Ellipse(cPointStyle);
 		this.startPoint = new drawjs.shape.Rect(pointStyle);
 		this.endPoint = new drawjs.shape.Rect(pointStyle);
 		
-		this.controlLayer = new drawjs.Layer({system:true,visible:false});
-		this.controlLayer.add(this.controlLine1);
-		this.controlLayer.add(this.controlLine2);
-		this.controlLayer.add(this.controlPoint1);
-		this.controlLayer.add(this.controlPoint2);
-		this.controlLayer.add(this.startPoint);
-		this.controlLayer.add(this.endPoint);
+		this.cLayer = new drawjs.Layer({system:true,visible:false});
+		this.cLayer.add(this.cLine);
+		this.cLayer.add(this.cPoint1);
+		this.cLayer.add(this.cPoint2);
+		this.cLayer.add(this.startPoint);
+		this.cLayer.add(this.endPoint);
 		
 		this.reverse = false;
 		this.action = false;
@@ -784,17 +780,17 @@ drawjs.tool.PathTemplate = new Class({
 		this.refresh();
 	},
 	enter:function(){
-		this.canvas.push(this.controlLayer);
+		this.canvas.push(this.cLayer);
 		this.select();
 		this.refresh();
 	},
 	leave:function(){
 		if(this.action)
 			this.current.setVisible(false);
-		this.canvas.pop(this.controlLayer);
+		this.canvas.pop(this.cLayer);
 	},
 	mousemove:function(e){
-		switch (this.controlLayer.select(e.x,e.y)){
+		switch (this.cLayer.select(e.x,e.y)){
 			case this.startPoint:
 				this.startPoint.set({fill:'#f00'}); 
 			break;
@@ -809,11 +805,11 @@ drawjs.tool.PathTemplate = new Class({
 	},
 	refresh:function(){
 		if(this.current){
-			this.controlLayer.setVisible(true);
+			this.cLayer.setVisible(true);
 			this.startPoint.setVisible(!this.action);
 			this.endPoint.setVisible(!this.action);
-			this.controlPoint1.setVisible(!this.action);
-			this.controlPoint2.setVisible(!this.action);
+			this.cPoint1.setVisible(!this.action);
+			this.cPoint2.setVisible(!this.action);
 			var sp = this.current.getStartPoint();
 			var ep = this.current.getEndPoint();
 			
@@ -823,25 +819,23 @@ drawjs.tool.PathTemplate = new Class({
 			var x = this.reverse ? sp.x : ep.x;
 			var y = this.reverse ? sp.y : ep.y;
 			
-			this.controlPoint1.setPosition(x-3,y-3);
-			this.controlPoint2.setPosition(x-3,y-3);
-			this.controlLine1.setStartPoint(x,y);
-			this.controlLine1.setEndPoint(x,y);
-			this.controlLine2.setStartPoint(x,y);
-			this.controlLine2.setEndPoint(x,y);
+			this.cPoint1.setPosition(x-3,y-3);
+			this.cPoint2.setPosition(x-3,y-3);
+			this.cLine.setStartPoint(x,y);
+			this.cLine.setEndPoint(x,y);
 		}else{
-			this.controlLayer.setVisible(false);
+			this.cLayer.setVisible(false);
 		}
 	},
 	setCPoint2:function(x,y){
-		this.controlPoint2.setVisible(true);
-		this.controlPoint2.setPosition(x-3,y-3);
-		this.controlLine2.setEndPoint(x,y);
+		this.cPoint2.setVisible(true);
+		this.cPoint2.setPosition(x-3,y-3);
+		this.cLine.setStartPoint(x,y);
 	},
 	setCPoint1:function(x,y){
-		this.controlPoint1.setVisible(true);
-		this.controlPoint1.setPosition(x-3,y-3);
-		this.controlLine1.setEndPoint(x,y);
+		this.cPoint1.setVisible(true);
+		this.cPoint1.setPosition(x-3,y-3);
+		this.cLine.setEndPoint(x,y);
 	}
 });
 
@@ -859,7 +853,7 @@ drawjs.tool.Curves = new Class({
 		this.parent(e);
 		this.pressed = true;
 		this.dragged = false;
-		this.focus = this.controlLayer.select(e.x,e.y);
+		this.focus = this.cLayer.select(e.x,e.y);
 		this.refresh();
 		
 		this.x = e.x;
@@ -1089,7 +1083,7 @@ drawjs.tool.Text = new Class({
 	mouseup:function(){
 		if(this.pressed){
 			this.pressed = false;
-			var bound = this.current.getBound();
+			var bound = this.current.getBBox();
 			this.canvas.getFocus().remove(this.current);
 			var text = this.getTextShape();
 			text.setPosition(bound.x,bound.y);
@@ -1116,9 +1110,9 @@ drawjs.tool.VText = new Class({
 drawjs.tool.HInsertText = new Class({
 	Extends:drawjs.tool.Template,
 	init:function(){
-		this.controlLayer = new drawjs.Layer({system:true});
+		this.cLayer = new drawjs.Layer({system:true});
 		this.temp = this.getShape(); 
-		this.controlLayer.add(this.temp);	
+		this.cLayer.add(this.temp);	
 	},
 	getType:function(){
 		return 'hInsertText';
@@ -1127,7 +1121,7 @@ drawjs.tool.HInsertText = new Class({
 		return new drawjs.shape.HInsertText();
 	}.protect(),
 	enter:function(){
-		this.canvas.push(this.controlLayer);
+		this.canvas.push(this.cLayer);
 	},
 	leave:function(){
 		this.canvas.pop();
@@ -1379,7 +1373,7 @@ drawjs.Layer = new Class({
 		var test = function(shape){
 			if(!shape.isVisible()) return false;
 			
-			var s = shape.getBound();
+			var s = shape.getBBox();
 			return y>=s.y && y<=s.y + s.height 
 			&& x>=s.x && x<=s.x + s.width;
 		}
@@ -1393,7 +1387,7 @@ drawjs.Layer = new Class({
 		return this.shapes.filter(function(shape){
 			if(!shape.isVisible()) return false;
 			
-			var s = shape.getBound();
+			var s = shape.getBBox();
 			return s.x>=t.x && s.y>=t.y
 			&& s.x + s.width <= t.x + t.width
 			&& s.y + s.height <= t.y + t.height;
@@ -1489,7 +1483,7 @@ drawjs.shape.Template = new Class({
 			height:Math.max(0,height)
 		});
 	},
-	getBound:function(){
+	getBBox:function(){
 		var o = this.options;
 		return {x:o.x,y:o.y,width:o.width, height:o.height};
 	},
@@ -1558,14 +1552,14 @@ drawjs.shape.Image = new Class({
 		this.parent(data);
 	},
 	render:function(ctx){
-		var b = this.getBound();
+		var b = this.getBBox();
 		
 		if(this.loaded){
 			ctx.drawImage(this.$img,b.x,b.y,b.width,b.height);
 			
 		}
 	},
-	getBound:function(){
+	getBBox:function(){
 		var o = this.options;
 		return {
 			x:o.x || 0,
@@ -1745,7 +1739,7 @@ drawjs.shape.Text = new Class({
 		});
 		this.height = o.height || this.lines.length * size;
 	},
-	getBound:function(){
+	getBBox:function(){
 		var o = this.options;
 		return {
 			x:o.x || 0,
@@ -1767,7 +1761,7 @@ drawjs.shape.Text = new Class({
 		ctx.font = (o.fontBold ? 'bold ':'')+ o.fontSize+'px '+o.fontFamily;
 		ctx.textAlign = o.textAlign;
 		
-		var bound = this.getBound();
+		var bound = this.getBBox();
 		var size = o.fontSize*o.lineHeightEm;
 		switch(o.textAlign){
 			case 'center': var initX = bound.x + bound.width/2; break;
@@ -1843,7 +1837,7 @@ drawjs.shape.VText = new Class({
 		});
 		this.width = o.width || this.lines.length * size;
 	},
-	getBound:function(){
+	getBBox:function(){
 		var o = this.options;
 		return {
 			x:o.x || 0,
@@ -1865,7 +1859,7 @@ drawjs.shape.VText = new Class({
 		ctx.font = (o.fontBold ? 'bold ':'')+ o.fontSize+'px '+o.fontFamily;
 		ctx.textAlign = 'center';
 		
-		var bound = this.getBound();
+		var bound = this.getBBox();
 		var size = o.fontSize*o.lineHeightEm;
 
 		for(var i=0,l=this.lines.length;i<l;i++){
@@ -1915,8 +1909,8 @@ drawjs.shape.HInsertText = new Class({
 			self.text.set(options);
 		});
 	},
-	getBound:function(){
-		var textBound = this.text.getBound();
+	getBBox:function(){
+		var textBound = this.text.getBBox();
 		return {
 			x:this.options.x,
 			y:this.options.y,
@@ -2149,7 +2143,7 @@ drawjs.shape.Path = new Class({
 		});
 		this.fireChange();
 	},
-	getBound:function(){
+	getBBox:function(){
 		if(!this.hasAnalyzed) this.analyze();
 		return {x:this.x,y:this.y,width:this.width,height:this.height};
 	},
