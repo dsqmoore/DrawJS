@@ -736,7 +736,7 @@ drawjs.tool.PathTemplate = new Class({
 		};
 		var cPointStyle = {
 			'fill':'#fff','stroke':'#000',
-			'lineWidth':1,'width':6,'height':6,
+			'lineWidth':1,'width':7,'height':7,
 			'x':-10,'y':-10
 		};
 		var cLineStyle = {
@@ -940,9 +940,10 @@ drawjs.tool.Curves = new Class({
 		this.pressed = false;
 		this.action = false;
 		this.current.back(this.reverse);
-		if(this.current.count()>1)
+		if(this.current.count()>1){
 			this.history.save(new drawjs.record.Shape(this.current));
-		else
+			this.selection.select(this.current);
+		}else
 			this.current.setVisible(false);
 		this.refresh();
 	},
@@ -998,7 +999,6 @@ drawjs.tool.ShapeDragTemplate = new Class({
 		if(this.pressed){
 			this.pressed = false;
 			if(this.dragged){
-				//this.selection.select(this.current);
 				this.history.save(new drawjs.record.Shape(this.current));
 			}else{
 				this.current.setVisible(false);
