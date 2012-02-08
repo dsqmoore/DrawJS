@@ -20,7 +20,7 @@ window.addEvent('domready',function(){
 	var background = new drawjs.Layer({system:true});
 	var image = new drawjs.shape.Image({'src':data.src});
 	image.addEvent('load',function(){
-		var b = this.getBound();
+		var b = this.getBox();
 		var w = Math.round(b.width*0.7);
 		var h = Math.round(b.height*0.7);
 		this.setSize(w,h);
