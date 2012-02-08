@@ -864,7 +864,15 @@ drawjs.tool.Curves = new Class({
 			this.y2 = e.y;
 		}else{
 			//first down
-			if(this.focus!=this.startPoint && this.focus!=this.endPoint){
+			if(this.focus==this.startPoint){
+				var sp = this.current.getStartPoint();
+				this.x = sp.x;
+				this.y = sp.y;
+			}else if(this.focus==this.endPoint){
+				var ep = this.current.getEndPoint();
+				this.x = ep.x;
+				this.y = ep.y;
+			}else{
 				this.current = new drawjs.shape.Path(this.styling.get(['fill','stroke','lineWidth']));
 				this.current.moveTo(e.x,e.y);
 				this.canvas.getFocus().add(this.current);
@@ -873,7 +881,7 @@ drawjs.tool.Curves = new Class({
 			
 			this.finished = false;
 			this.reverse = this.focus == this.startPoint;
-			this.current.lineTo(e.x,e.y,this.reverse);
+			this.current.lineTo(this.x,this.y,this.reverse);
 			this.action = true;
 		}
 		this.refresh();
